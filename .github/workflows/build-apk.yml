@@ -33,13 +33,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: |
-            tools
-            platform-tools
-            platforms;android-34
-            build-tools;34.0.0
-            ndk;26.1.10909125
-            cmake;3.22.1
+          packages: 'tools platform-tools platforms;android-34 build-tools;34.0.0 ndk;26.1.10909125 cmake;3.22.1'
 
       - name: Install npm dependencies
         run: npm install --no-audit --no-fund
