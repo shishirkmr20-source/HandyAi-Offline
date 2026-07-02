@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HandyAi</string>
+    <string name="default_system_prompt">You are HandyAi, a helpful, concise offline assistant running entirely on the user\'s device. Answer briefly and accurately.</string>
+</resources>

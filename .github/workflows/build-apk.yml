@@ -1,0 +1,102 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # required by softprops/action-gh-release to upload release assets
+
+jobs:
+  build:
+    name: Build release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            tools
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+            ndk;26.1.10909125
+            cmake;3.22.1
+
+      - name: Install npm dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Generate release keystore (self-signed, CI-only)
+        run: |
+          cd android/app
+          keytool -genkeypair -v \
+            -storetype PKCS12 \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -alias handyai \
+            -keystore upload-keystore.jks \
+            -storepass handyai \
+            -keypass handyai \
+            -dname "CN=HandyAi, OU=App, O=HandyAi, L=City, ST=State, C=US"
+          printf 'HANDYAI_UPLOAD_STORE_FILE=upload-keystore.jks\nHANDYAI_UPLOAD_STORE_PASSWORD=handyai\nHANDYAI_UPLOAD_KEY_ALIAS=handyai\nHANDYAI_UPLOAD_KEY_PASSWORD=handyai\n' > upload-keystore.properties
+          echo "Keystore generated at $(pwd)/upload-keystore.jks"
+
+      - name: Build release APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Rename APK to handyai.apk
+        run: |
+          mkdir -p artifacts
+          cp android/app/build/outputs/apk/release/app-release.apk artifacts/handyai.apk
+          ls -lh artifacts/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: handyai-apk
+          path: artifacts/handyai.apk
+          retention-days: 90
+
+      - name: Create GitHub Release with APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/handyai.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          name: HandyAi ${{ github.ref_name }}
+
+      - name: Create release for manual workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/handyai.apk
+          tag_name: v1.0.0-ci-${{ github.run_number }}
+          name: HandyAi CI build #${{ github.run_number }}
+          body: |
+            Automated build from workflow_dispatch run #${{ github.run_number }}.
+            Commit: ${{ github.sha }}
+          prerelease: true

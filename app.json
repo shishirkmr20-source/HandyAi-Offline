@@ -1,0 +1,9 @@
+{
+  "name": "HandyAi",
+  "displayName": "HandyAi",
+  "icon": "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+  "permissions": ["INTERNET", "WRITE_EXTERNAL_STORAGE", "READ_EXTERNAL_STORAGE"],
+  "splash": {
+    "backgroundColor": "#0E0E10"
+  }
+}

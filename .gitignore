@@ -1,0 +1,56 @@
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/app/debug.keystore
+android/app/upload-keystore.jks
+android/app/upload-keystore.properties
+android/local.properties
+*.iml
+.idea/
+.gradle/
+
+# Node
+node_modules/
+.npm/
+.yarn/
+
+# Metro
+.metro-cache/
+.metro-health-check*
+
+# Watchman
+.watchmanconfig.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Bundles
+*.bundle
+*.apk
+*.aab
+*.ap_
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Models (NEVER commit model files — too big)
+*.gguf
+*.bin
+models/**/*.gguf
